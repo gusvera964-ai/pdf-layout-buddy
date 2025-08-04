@@ -69,12 +69,31 @@ export const PDFViewer = ({ file, onAnalyze }: PDFViewerProps) => {
             <Download className="w-4 h-4" />
           </Button>
 
-          <Button
-            onClick={onAnalyze}
-            className="bg-gradient-to-r from-pdf-primary to-pdf-accent text-white hover:from-pdf-primary-hover hover:to-pdf-accent/90 transition-all duration-300"
-          >
-            Анализировать PDF
-          </Button>
+          <div className="flex items-center space-x-2">
+            <Button
+              onClick={onAnalyze}
+              variant="pdf"
+              size="sm"
+            >
+              Перевести
+            </Button>
+            
+            <Button
+              onClick={onAnalyze}
+              variant="pdf"
+              size="sm"
+            >
+              Спросить
+            </Button>
+            
+            <Button
+              onClick={onAnalyze}
+              variant="pdf"
+              size="sm"
+            >
+              Резюме
+            </Button>
+          </div>
         </div>
       </div>
 
