@@ -52,6 +52,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
+				pdf: {
+					primary: 'hsl(var(--pdf-primary))',
+					'primary-hover': 'hsl(var(--pdf-primary-hover))',
+					accent: 'hsl(var(--pdf-accent))',
+					success: 'hsl(var(--pdf-success))',
+					surface: 'hsl(var(--pdf-surface))',
+					'surface-alt': 'hsl(var(--pdf-surface-alt))'
+				},
 				sidebar: {
 					DEFAULT: 'hsl(var(--sidebar-background))',
 					foreground: 'hsl(var(--sidebar-foreground))',
