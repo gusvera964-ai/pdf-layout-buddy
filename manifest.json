@@ -1,0 +1,11 @@
+{
+  "manifest_version": 3,
+  "name": "PDF Layout Buddy",
+  "version": "1.0.0",
+  "description": "Анализ и структура PDF-документов в Chrome",
+  "action": {
+    "default_title": "PDF Layout Buddy",
+    "default_popup": "popup.html"
+  },
+  "options_page": "options.html"
+}
