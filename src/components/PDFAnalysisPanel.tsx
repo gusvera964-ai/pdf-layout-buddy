@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, FileText, Send, Bot, User, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -22,6 +22,7 @@ export const PDFAnalysisPanel = ({ fileName, isAnalyzing }: PDFAnalysisPanelProp
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Mock summary data
   const summary = {
@@ -41,10 +42,12 @@ export const PDFAnalysisPanel = ({ fileName, isAnalyzing }: PDFAnalysisPanelProp
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
 
+    const question = inputMessage;
+
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputMessage,
+      content: question,
       timestamp: new Date()
     };
 
@@ -52,18 +55,30 @@ export const PDFAnalysisPanel = ({ fileName, isAnalyzing }: PDFAnalysisPanelProp
     setInputMessage('');
     setIsTyping(true);
 
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+    }
+
     // Simulate AI response
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       const aiMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'ai',
-        content: `Я проанализировал ваш вопрос "${inputMessage}" в контексте документа "${fileName}". Согласно содержанию PDF, могу предоставить следующую информацию...`,
+        content: `Я проанализировал ваш вопрос "${question}" в контексте документа "${fileName}". Согласно содержанию PDF, могу предоставить следующую информацию...`,
         timestamp: new Date()
       };
       setMessages(prev => [...prev, aiMessage]);
       setIsTyping(false);
     }, 2000);
   };
+
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
