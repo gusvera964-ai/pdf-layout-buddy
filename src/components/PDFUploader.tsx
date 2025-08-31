@@ -4,6 +4,8 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10 MB
+
 interface PDFUploaderProps {
   onFileSelect: (file: File) => void;
   isLoading?: boolean;
@@ -31,6 +33,14 @@ export const PDFUploader = ({ onFileSelect, isLoading }: PDFUploaderProps) => {
     const pdfFile = files.find(file => file.type === 'application/pdf');
 
     if (pdfFile) {
+      if (pdfFile.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Ошибка",
+          description: "Размер файла превышает 10 MB",
+          variant: "destructive",
+        });
+        return;
+      }
       onFileSelect(pdfFile);
       toast({
         title: "PDF загружен",
@@ -48,6 +58,14 @@ export const PDFUploader = ({ onFileSelect, isLoading }: PDFUploaderProps) => {
   const handleFileInput = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && file.type === 'application/pdf') {
+      if (file.size > MAX_FILE_SIZE) {
+        toast({
+          title: "Ошибка",
+          description: "Размер файла превышает 10 MB",
+          variant: "destructive",
+        });
+        return;
+      }
       onFileSelect(file);
       toast({
         title: "PDF загружен",
