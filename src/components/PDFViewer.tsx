@@ -1,16 +1,70 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { FileText, Download, ZoomIn, ZoomOut } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { getDocument, GlobalWorkerOptions, PDFPageProxy } from 'pdfjs-dist';
+import type { TextItem } from 'pdfjs-dist/types/src/display/api';
+import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 interface PDFViewerProps {
   file: File;
   onAnalyze: () => void;
+  onLoad?: (info: {
+    text: string;
+    numPages: number;
+    wordCount: number;
+    readingTime: number;
+  }) => void;
 }
 
-export const PDFViewer = ({ file, onAnalyze }: PDFViewerProps) => {
+export const PDFViewer = ({ file, onAnalyze, onLoad }: PDFViewerProps) => {
   const [zoom, setZoom] = useState(100);
-  
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [page, setPage] = useState<PDFPageProxy | null>(null);
+
+  useEffect(() => {
+    const loadPdf = async () => {
+      GlobalWorkerOptions.workerSrc = chrome.runtime.getURL(workerSrc);
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await getDocument({ data: arrayBuffer }).promise;
+      const firstPage = await pdf.getPage(1);
+      setPage(firstPage);
+      await renderPage(firstPage, zoom / 100);
+
+      // Extract text and metadata
+      let text = '';
+      for (let i = 1; i <= pdf.numPages; i++) {
+        const p = await pdf.getPage(i);
+        const content = await p.getTextContent();
+        const textItems = content.items as TextItem[];
+        text += textItems.map((item) => item.str).join(' ') + ' ';
+      }
+      const words = text.trim().split(/\s+/).filter(Boolean);
+      const wordCount = words.length;
+      const readingTime = Math.ceil(wordCount / 200);
+      onLoad?.({ text, numPages: pdf.numPages, wordCount, readingTime });
+    };
+    loadPdf();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [file]);
+
+  useEffect(() => {
+    if (page) {
+      renderPage(page, zoom / 100);
+    }
+  }, [zoom, page]);
+
+  const renderPage = async (p: PDFPageProxy, scale: number) => {
+    const viewport = p.getViewport({ scale });
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const context = canvas.getContext('2d');
+    if (!context) return;
+    canvas.height = viewport.height;
+    canvas.width = viewport.width;
+    await p.render({ canvasContext: context, viewport }).promise;
+  };
+
   const handleDownload = () => {
     const url = URL.createObjectURL(file);
     const a = document.createElement('a');
@@ -47,11 +101,11 @@ export const PDFViewer = ({ file, onAnalyze }: PDFViewerProps) => {
           >
             <ZoomOut className="w-4 h-4" />
           </Button>
-          
+
           <span className="text-sm text-gray-600 min-w-12 text-center">
             {zoom}%
           </span>
-          
+
           <Button
             variant="outline"
             size="sm"
@@ -77,7 +131,7 @@ export const PDFViewer = ({ file, onAnalyze }: PDFViewerProps) => {
             >
               Перевести
             </Button>
-            
+
             <Button
               onClick={onAnalyze}
               variant="pdf"
@@ -85,7 +139,7 @@ export const PDFViewer = ({ file, onAnalyze }: PDFViewerProps) => {
             >
               Спросить
             </Button>
-            
+
             <Button
               onClick={onAnalyze}
               variant="pdf"
@@ -100,50 +154,10 @@ export const PDFViewer = ({ file, onAnalyze }: PDFViewerProps) => {
       {/* PDF Content */}
       <div className="flex-1 bg-gray-100 p-4 overflow-auto">
         <Card className="bg-white shadow-lg max-w-fit mx-auto">
-          <div 
-            className="pdf-preview p-8 bg-white"
-            style={{ transform: `scale(${zoom / 100})`, transformOrigin: 'top center' }}
-          >
-            {/* PDF Preview Placeholder */}
-            <div className="w-[595px] h-[842px] bg-white border border-gray-200 shadow-sm relative overflow-hidden">
-              <div className="absolute inset-0 bg-gradient-to-br from-gray-50 to-gray-100" />
-              
-              {/* Mock PDF Content */}
-              <div className="relative z-10 p-12 space-y-6">
-                <div className="space-y-3">
-                  <div className="h-6 bg-gray-300 rounded w-3/4" />
-                  <div className="h-4 bg-gray-200 rounded w-1/2" />
-                </div>
-                
-                <div className="space-y-2">
-                  {Array.from({ length: 15 }).map((_, i) => (
-                    <div 
-                      key={i} 
-                      className="h-3 bg-gray-100 rounded"
-                      style={{ width: `${Math.random() * 40 + 60}%` }}
-                    />
-                  ))}
-                </div>
-
-                <div className="space-y-2 mt-8">
-                  {Array.from({ length: 12 }).map((_, i) => (
-                    <div 
-                      key={i} 
-                      className="h-3 bg-gray-100 rounded"
-                      style={{ width: `${Math.random() * 30 + 70}%` }}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              {/* PDF Watermark */}
-              <div className="absolute bottom-4 right-4 text-gray-400 text-xs">
-                {file.name}
-              </div>
-            </div>
-          </div>
+          <canvas ref={canvasRef} />
         </Card>
       </div>
     </div>
   );
 };
+

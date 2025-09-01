@@ -8,6 +8,12 @@ const Index = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showAnalysis, setShowAnalysis] = useState(false);
+  const [pdfInfo, setPdfInfo] = useState<{ text: string; numPages: number; wordCount: number; readingTime: number }>({
+    text: '',
+    numPages: 0,
+    wordCount: 0,
+    readingTime: 0,
+  });
 
   const handleFileSelect = (file: File) => {
     setSelectedFile(file);
@@ -29,14 +35,17 @@ const Index = () => {
       <div className="h-screen flex">
         {/* PDF Viewer */}
         <div className="flex-1 border-r border-gray-200">
-          <PDFViewer file={selectedFile} onAnalyze={handleAnalyze} />
+          <PDFViewer file={selectedFile} onAnalyze={handleAnalyze} onLoad={setPdfInfo} />
         </div>
         
         {/* Analysis Panel */}
         <div className="w-96 bg-white">
-          <PDFAnalysisPanel 
-            fileName={selectedFile.name} 
+          <PDFAnalysisPanel
+            fileName={selectedFile.name}
             isAnalyzing={isAnalyzing}
+            wordCount={pdfInfo.wordCount}
+            pages={pdfInfo.numPages}
+            readingTime={pdfInfo.readingTime}
           />
         </div>
       </div>
@@ -46,7 +55,7 @@ const Index = () => {
   if (selectedFile) {
     return (
       <div className="h-screen">
-        <PDFViewer file={selectedFile} onAnalyze={handleAnalyze} />
+        <PDFViewer file={selectedFile} onAnalyze={handleAnalyze} onLoad={setPdfInfo} />
       </div>
     );
   }

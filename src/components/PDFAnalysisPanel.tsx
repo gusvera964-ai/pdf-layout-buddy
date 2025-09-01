@@ -1,10 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
-import { MessageCircle, FileText, Send, Bot, User, Loader2 } from 'lucide-react';
+import { MessageCircle, Send, Bot, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface Message {
   id: string;
@@ -16,28 +14,17 @@ interface Message {
 interface PDFAnalysisPanelProps {
   fileName: string;
   isAnalyzing: boolean;
+  wordCount: number;
+  pages: number;
+  readingTime: number;
 }
 
-export const PDFAnalysisPanel = ({ fileName, isAnalyzing }: PDFAnalysisPanelProps) => {
+export const PDFAnalysisPanel = ({ fileName, isAnalyzing, wordCount, pages, readingTime }: PDFAnalysisPanelProps) => {
   const [messages, setMessages] = useState<Message[]>([]);
   const [inputMessage, setInputMessage] = useState('');
   const [isTyping, setIsTyping] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // Mock summary data
-  const summary = {
-    title: "Анализ документа",
-    content: `Подробное резюме статьи "${fileName}". Документ содержит важную информацию о методах анализа данных и современных подходах к обработке информации. Ключевые темы включают машинное обучение, статистический анализ и практические применения.`,
-    keyPoints: [
-      "Введение в методы анализа данных",
-      "Статистические подходы и их применение", 
-      "Машинное обучение в современных исследованиях",
-      "Практические рекомендации и выводы"
-    ],
-    wordCount: 2847,
-    pages: 12,
-    readingTime: "11 минут"
-  };
 
   const handleSendMessage = async () => {
     if (!inputMessage.trim()) return;
@@ -97,6 +84,11 @@ export const PDFAnalysisPanel = ({ fileName, isAnalyzing }: PDFAnalysisPanelProp
         <p className="text-sm text-gray-600 mt-1">
           {fileName}
         </p>
+        <div className="text-xs text-gray-500 mt-2 flex space-x-4">
+          <span>Страниц: {pages}</span>
+          <span>Слов: {wordCount}</span>
+          <span>Время чтения: {readingTime} мин</span>
+        </div>
       </div>
 
       <div className="flex-1 flex flex-col">
