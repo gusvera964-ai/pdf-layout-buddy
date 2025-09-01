@@ -24,7 +24,14 @@ export const PDFViewer = ({ file, onAnalyze, onLoad }: PDFViewerProps) => {
 
   useEffect(() => {
     const loadPdf = async () => {
-      GlobalWorkerOptions.workerSrc = chrome.runtime.getURL(workerSrc);
+      if (typeof chrome !== 'undefined' && chrome.runtime) {
+        GlobalWorkerOptions.workerSrc = chrome.runtime.getURL(workerSrc);
+      } else {
+        GlobalWorkerOptions.workerSrc = workerSrc;
+        console.warn(
+          'chrome.runtime is not available; using workerSrc directly'
+        );
+      }
       const arrayBuffer = await file.arrayBuffer();
       const pdf = await getDocument({ data: arrayBuffer }).promise;
       const firstPage = await pdf.getPage(1);
