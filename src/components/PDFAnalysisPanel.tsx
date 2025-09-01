@@ -67,7 +67,7 @@ export const PDFAnalysisPanel = ({ fileName, isAnalyzing, wordCount, pages, read
     };
   }, []);
 
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       handleSendMessage();
@@ -162,7 +162,7 @@ export const PDFAnalysisPanel = ({ fileName, isAnalyzing, wordCount, pages, read
             <Input
               value={inputMessage}
               onChange={(e) => setInputMessage(e.target.value)}
-              onKeyPress={handleKeyPress}
+              onKeyDown={handleKeyDown}
               placeholder="Задайте вопрос о документе..."
               className="flex-1"
               disabled={isAnalyzing}
