@@ -8,7 +8,9 @@ import workerSrc from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 interface PDFViewerProps {
   file: File;
-  onAnalyze: () => void;
+  onTranslate: () => void;
+  onAsk: () => void;
+  onSummarize: () => void;
   onLoad?: (info: {
     text: string;
     numPages: number;
@@ -17,7 +19,7 @@ interface PDFViewerProps {
   }) => void;
 }
 
-export const PDFViewer = ({ file, onAnalyze, onLoad }: PDFViewerProps) => {
+export const PDFViewer = ({ file, onTranslate, onAsk, onSummarize, onLoad }: PDFViewerProps) => {
   const [zoom, setZoom] = useState(100);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [page, setPage] = useState<PDFPageProxy | null>(null);
@@ -125,7 +127,7 @@ export const PDFViewer = ({ file, onAnalyze, onLoad }: PDFViewerProps) => {
 
           <div className="flex items-center space-x-2">
             <Button
-              onClick={onAnalyze}
+              onClick={onTranslate}
               variant="pdf"
               size="sm"
             >
@@ -133,7 +135,7 @@ export const PDFViewer = ({ file, onAnalyze, onLoad }: PDFViewerProps) => {
             </Button>
 
             <Button
-              onClick={onAnalyze}
+              onClick={onAsk}
               variant="pdf"
               size="sm"
             >
@@ -141,7 +143,7 @@ export const PDFViewer = ({ file, onAnalyze, onLoad }: PDFViewerProps) => {
             </Button>
 
             <Button
-              onClick={onAnalyze}
+              onClick={onSummarize}
               variant="pdf"
               size="sm"
             >
