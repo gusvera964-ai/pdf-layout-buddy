@@ -20,22 +20,32 @@ const Index = () => {
     setShowAnalysis(false);
   };
 
-  const handleAnalyze = () => {
+  const startAnalysis = () => {
     setIsAnalyzing(true);
     setShowAnalysis(true);
-    
+
     // Simulate analysis process
     setTimeout(() => {
       setIsAnalyzing(false);
     }, 3000);
   };
 
+  const handleTranslate = () => startAnalysis();
+  const handleAsk = () => startAnalysis();
+  const handleSummarize = () => startAnalysis();
+
   if (selectedFile && showAnalysis) {
     return (
       <div className="h-screen flex">
         {/* PDF Viewer */}
         <div className="flex-1 border-r border-gray-200">
-          <PDFViewer file={selectedFile} onAnalyze={handleAnalyze} onLoad={setPdfInfo} />
+          <PDFViewer
+            file={selectedFile}
+            onTranslate={handleTranslate}
+            onAsk={handleAsk}
+            onSummarize={handleSummarize}
+            onLoad={setPdfInfo}
+          />
         </div>
         
         {/* Analysis Panel */}
@@ -55,7 +65,13 @@ const Index = () => {
   if (selectedFile) {
     return (
       <div className="h-screen">
-        <PDFViewer file={selectedFile} onAnalyze={handleAnalyze} onLoad={setPdfInfo} />
+        <PDFViewer
+          file={selectedFile}
+          onTranslate={handleTranslate}
+          onAsk={handleAsk}
+          onSummarize={handleSummarize}
+          onLoad={setPdfInfo}
+        />
       </div>
     );
   }
